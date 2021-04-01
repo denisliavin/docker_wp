@@ -1,0 +1,45 @@
+version: '3'
+services:
+  web:
+    restart: always
+    build: .
+    volumes:
+      - ./:/var/www/
+    depends_on:
+      - db
+    ports:
+      - "8090:8090"
+  db:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret_password
+      MYSQL_DATABASE: project1
+      MYSQL_USER: project1
+      MYSQL_PASSWORD: a123456
+    volumes:
+    - "./.docker/dbdata:/var/lib/mysql"
+
+  nginx:
+    build: ./.docker/nginx
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - web
+
+  adminer:
+   image: adminer
+   restart: always
+   ports:
+    - 6080:8080
+
+  composer:
+   image: composer
+   volumes:
+    - .:/app
+   command: install
